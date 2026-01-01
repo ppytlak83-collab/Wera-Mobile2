@@ -1,0 +1,28 @@
+name: Build Wera Mobile
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev
+          sudo apt-get install -y ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+          sudo apt-get install -y unzip autoconf libtool pkg-config
+          pip3 install --user --upgrade buildozer cython virtualenv
+
+      - name: Build with Buildozer
+        run: |
+          # Akceptacja licencji SDK i budowanie
+          yes | buildozer android debug
+        continue-on-error: false
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Wera-Mobile-Package
+          path: bin/*.apk
